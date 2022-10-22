@@ -22,7 +22,7 @@ def account_handler(login, token):
     if request.method == 'GET':
         sql.execute('SELECT id, title FROM roles')
         roles_list = sql.fetchall()
-        return json.dumps({'roles': roles_list}, nsure_ascii=False), 200
+        return json.dumps({'roles': roles_list}, ensure_ascii=False), 200
     elif request.method != 'POST':
         return {'message':'Invalid method'},500
 
@@ -59,7 +59,7 @@ def login_handler():
     if request.method == 'POST':
         body = request.json
         if not body:
-            return json.dumps({'message':'Тело запроса пустое, не надо так!'}, nsure_ascii=False), 500
+            return json.dumps({'message':'Тело запроса пустое, не надо так!'}, ensure_ascii=False), 500
         login = body.get('login')
         password = sha256(body.get('password','').encode('utf-8')).hexdigest()
         sql.execute(f"""SELECT token FROM users WHERE login='{login}' AND password='{password}'""")
