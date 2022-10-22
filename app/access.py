@@ -1,5 +1,5 @@
 import json
-from database import create_conn
+from .database import create_conn
 from flask_cors import cross_origin
 
 def access(access_roles:list ):

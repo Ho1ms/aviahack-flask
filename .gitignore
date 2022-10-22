@@ -1,2 +1,5 @@
 
-config.py
+*.xml
+*.iml
+*.pyc
+app/config.py

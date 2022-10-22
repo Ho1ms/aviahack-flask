@@ -1,0 +1,265 @@
+ACCESS_ROLES = [1,2,3] ("Водитель","Диспетчер","Руководитель")
+URL_ARGS - Аргументы GET запроса (https://example.com?аргумент=значение&второй_агрумент....)
+
+/ping - GET
+ACCESS_ROLES: NULL
+
+response = {
+    "message":"pong"
+}
+
+
+/login - POST
+ACCESS_ROLES: NULL
+
+// Авторизация в системе
+
+body = {
+    "login":"Холмс",
+    "password":"Админ228"
+}
+
+response = {
+    "login":"Холмс",
+    "token":"сУпЕр$екретныйХэSh"
+}
+
+
+/add-new-acc/<login>/<token> - GET, POST
+ACCESS_ROLES: [2,3]
+
+// Создание аккаунта для сотрудника
+
+GET:
+response = {
+    "roles": [
+        [1, "Водитель"],
+        [2, "Диспетчер"],
+        [3, "Руководитель"]
+    ]
+}
+
+POST:
+body = {
+    "login":"Холмс",
+    "email":"danila@ginda.info",
+    "first_name":"Гинда",
+    "last_name":"Данила",
+    "father_name":"Александрович",
+    "role_id": 1 // Водитель, см. GET response
+}
+
+response = {
+    "message": "Письмо с данными для входа отправлено на почту сотрудника!"
+}
+
+
+/auth/me/<login>/<token> - GET
+ACCESS_ROLES: [1, 2, 3]
+
+// Информация в личном кабинете пользователя
+
+URL_ARGS: page=0 - номер страницы, limit=25 - кол-во записей на странице (целые числа), !!!page начинается с нуля!!!
+
+response = {
+    "user": {
+        "id": 1,
+        "login": "holms",
+        "email": "danila@ginda.info",
+        "name": "Гинда Данила Александрович",
+        "bus_info": {
+            "number": 666,
+            "count_seats": 100,
+            "type": 30
+        }
+    },
+    "tasks": [
+        {
+            "id": 1,
+            "users": [
+                1,
+                2
+            ],
+            "timestamp_task": 1666467645000,
+            "description": "",
+            "timestamp_init": 1666464292644,
+            "timestamp_update": 1666464292644,
+            "status": "new",
+            "process_time": 25,
+            "count_passengers": 300,
+            "target_point_id": 678,
+            "source_point_id": 654
+        }
+    ]
+}
+
+/get-free-bus/<login>/<token> - GET
+ACCESS_ROLES: [1, 2, 3]
+
+// Список свободных автобусов, чтобы водитель мог выбрать себе/диспетчер водителю
+
+response = {
+    "free_buses": [
+        {
+            "number": 777,
+            "model": 2,
+            "type": 10,
+            "count_seats": 50
+        },
+        {
+            "number": 123,
+            "model": 2,
+            "type": 10,
+            "count_seats": 50
+        }
+    ]
+}
+
+/get-active-drivers/<login>/<token> - GET
+ACCESS_ROLES: [2, 3]
+URL_ARGS: in_time=(тайместемп начала задачи), long=(сколько минут займёт задача) // Выдаст свободных для этой задачи водителей в том же формате
+
+response = {
+    "active_users": [
+        {
+            "id": 1,
+            "login": "holms",
+            "name": "Гинда Данила Александрович",
+            "bus_info": {
+                "number": 666,
+                "count_seats": 100,
+                "type": 30
+            }
+        }
+    ]
+}
+
+/get-task/<login>/<token> - GET
+ACCESS_ROLES: [1, 2, 3]
+URL_ARGS - id=(ID записи)
+
+response = {
+    "id": 1,
+    "users": [
+        1,
+        2
+    ],
+    "timestamp_task": 1666467645000,
+    "description": "Води аккуратно!",
+    "timestamp_init": 1666464292644,
+    "timestamp_update": 1666464292644,
+    "status": "new",
+    "process_time": 25,
+    "count_passengers": 300,
+    "target_point_id": 678,
+    "source_point_id": 654
+}
+
+/add-task/<login>/<token> - POST
+ACCESS_ROLES: [2, 3]
+
+body = {
+    "users":[
+        1,
+        2
+    ],
+    "timestamp_task":timestamp,
+    "target_point_id":"ID точки назначения",
+    "source_point_id":"ID точки отправления",
+    "count_passengers":"кол-во пассажиров для перевозки",
+    "process_time":"расчётное время на задачу"
+}
+
+response => get-task response
+
+
+/edit-task/<login>/<token> - POST
+ACCESS_ROLES: [1, 2, 3]
+
+body = {
+    get-task response
+}
+
+response = {
+    "message": "Данные успешно обновлены!"
+}
+
+/get-tasks/<login>/<token> - GET
+ACCESS_ROLES: [1,2,3]
+
+!!! Есть пагинация как в ЛК!!!
+
+response = {
+    "tasks": [
+        {
+            "id": 2,
+            "users": [],
+            "timestamp_task": 1666468257000,
+            "description": "",
+            "timestamp_init": 1666464872769,
+            "timestamp_update": 1666464872769,
+            "status": "new",
+            "process_time": 25,
+            "count_passengers": 300,
+            "target_point_id": 678,
+            "source_point_id": 654
+        },
+        {
+            "id": 3,
+            "users": [
+                2
+            ],
+            "timestamp_task": 1666467657000,
+            "description": "",
+            "timestamp_init": 1666465451937,
+            "timestamp_update": 1666465451937,
+            "status": "new",
+            "process_time": 25,
+            "count_passengers": 300,
+            "target_point_id": 678,
+            "source_point_id": 654
+        },
+        {
+            "id": 1,
+            "users": [
+                1,
+                2
+            ],
+            "timestamp_task": 1666467645000,
+            "description": "",
+            "timestamp_init": 1666464292644,
+            "timestamp_update": 1666464292644,
+            "status": "new",
+            "process_time": 25,
+            "count_passengers": 300,
+            "target_point_id": 678,
+            "source_point_id": 654
+        },
+        {
+            "id": 4,
+            "users": [
+                2
+            ],
+            "timestamp_task": 1666464645000,
+            "description": "",
+            "timestamp_init": 1666465459977,
+            "timestamp_update": 1666465459977,
+            "status": "new",
+            "process_time": 25,
+            "count_passengers": 300,
+            "target_point_id": 678,
+            "source_point_id": 654
+        }
+    ]
+}
+
+/bus-getter/<login>/<token> - POST
+
+// Взять смену на автобусе, закончить смену на автобусе
+// Получать данные из get-free-bus
+
+body = {
+    "type":"start", // "end"
+    "bus_number":666
+}
+response = {"message":"Вы успешно взяли себе автобус №${bus_number}"} //  {"message":"Вы успешно закончили смену на автобусе №${bus_number}"}
