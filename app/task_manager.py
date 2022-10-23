@@ -2,9 +2,8 @@ from flask import request
 from . import app
 from .access import access
 import json
-from .database import create_conn
+from .database import sql, db
 from .modules import get_timestamp, tasks_formatter,TASKS_PARAMS
-sql, db = create_conn()
 
 @app.route('/get-active-drivers/<login>/<token>',  endpoint='get_active_drivers')
 @access([2,3])
@@ -113,7 +112,7 @@ def add_task(login, token):
 
     users = body.get('users',[])
     timestamp_task = body.get('timestamp_task',get_timestamp())
-    description = body.get('description','')
+    description = body.get('description','Диспетчер не оставил сообщение!')
     timestamp_update = timestamp_init = get_timestamp()
     target_point_id = body.get('target_point_id',-1)
     source_point_id = body.get('source_point_id',-1)
@@ -126,7 +125,7 @@ def add_task(login, token):
     status = 'new'
 
     sql.execute(f"""INSERT INTO tasks (users, timestamp_task, description, timestamp_init, timestamp_update, status,target_point_id, source_point_id, process_time, count_passengers) 
-                                VALUES (array{users}, {timestamp_task},'{description}',{timestamp_update},{timestamp_init},'{status}',{target_point_id},{source_point_id},{process_time}, {count_passengers})""")
+                                VALUES ({"array" + str(users) if users else "'{}'"}, {timestamp_task},'{description}',{timestamp_update},{timestamp_init},'{status}',{target_point_id},{source_point_id},{process_time}, {count_passengers})""")
     db.commit()
 
     return json.dumps({'users':users, 'timestamp_task':timestamp_task, 'description':description,

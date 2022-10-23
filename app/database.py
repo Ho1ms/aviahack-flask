@@ -71,4 +71,3 @@ CREATE TABLE IF NOT EXISTS tasks (
 """)
 sql.execute(f"""INSERT INTO users (id, login, email, password,token, first_name, last_name, father_name, role_id) VALUES (1,'holms','danila@ginda.info','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8','super_puper_token_hash','Данила','Гинда','Александрович',3) ON CONFLICT DO NOTHING """)
 db.commit()
-db.close()

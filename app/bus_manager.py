@@ -2,8 +2,7 @@ from flask import request
 from . import app
 from .access import access
 import json
-from .database import create_conn
-sql, db = create_conn()
+from .database import sql, db
 
 @app.route('/get-free-bus/<login>/<token>',endpoint='get_free_bus')
 @access([1,2,3])
@@ -39,6 +38,7 @@ def bus_getter(login, token):
 
         try:
             sql.execute(f"UPDATE users SET bus_id = {bus_number} WHERE login='{login}' AND token='{token}'")
+            db.commit()
         except:
             return json.dumps({'message': 'Этот автобус не найден в базе!'}, ensure_ascii=False), 500
         return json.dumps({'message': f'Вы успешно взяли себе автобус №{bus_number}'}, ensure_ascii=False), 200
@@ -51,6 +51,7 @@ def bus_getter(login, token):
 
         try:
             sql.execute(f"UPDATE users SET bus_id = 0 WHERE login='{login}' AND token='{token}'")
+            db.commit()
         except:
             return json.dumps({'message': 'Этот автобус не найден в базе!'}, ensure_ascii=False), 500
         return json.dumps({'message': f'Вы успешно закончили смену на автобусе №{bus_number}'}, ensure_ascii=False), 200
